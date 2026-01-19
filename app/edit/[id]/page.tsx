@@ -1,0 +1,27 @@
+import UpdateUserForm from '@/components/UpdateUserForm'
+import { getUsersById } from '@/lib/data'
+import { notFound } from 'next/navigation'
+
+import React from 'react'
+
+const page = async({ params }: { params: { id: string } }) => {
+
+    const { id } = await params
+
+    const data = await getUsersById(Number(id))
+
+    if (!data) {
+        notFound()
+    }
+    
+  return (
+    <div className='max-w-xl mx-auto mt-5 space-y-4 bg-gray-100 p-8 rounded-md'>
+        <h1 className='text-center font-bold uppercase text-xl'>Edit Users</h1>
+
+        <UpdateUserForm data={data}/>
+
+    </div>
+  )
+}
+
+export default page
