@@ -10,6 +10,13 @@ const userValidator = z.object({
     telp: z.string().min(11)
 })
 
+const productValidator = z.object({
+  nama_produk: z.string().min(3),
+  gambar_produk: z.string().url(),
+  qty: z.coerce.number().int().min(1),
+  kategori: z.string().min(3)
+})
+
 export const addUsers = async (prevState: any, formData: FormData) => {
     const validatedData = userValidator.safeParse(Object.fromEntries(formData.entries()))
     if (!validatedData.success) {
@@ -73,4 +80,29 @@ export const deleteUser = async (id: number) => {
     }
 
     revalidatePath('/')
+}
+
+export const addProducts = async(prevState: any, formData: FormData) => {
+    const validatedData = productValidator.safeParse(Object.fromEntries(formData.entries()))
+    if (!validatedData.success) {
+        return {
+            Error: validatedData.error.flatten().fieldErrors
+        }
+    }
+
+    try {
+        await prisma.tb_produk.create({
+            data: {
+                nama_produk: validatedData.data.nama_produk,
+                gambar_produk: validatedData.data.gambar_produk,
+                qty: validatedData.data.qty,
+                kategori: validatedData.data.kategori
+            }
+        })
+    } catch (error) {
+        return { message: 'Failed inserting data' }
+    }
+
+    revalidatePath('/product')
+    redirect('/product')
 }
